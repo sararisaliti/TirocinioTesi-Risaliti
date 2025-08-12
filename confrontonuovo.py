@@ -29,7 +29,7 @@ def safe_stop(tracker):
     return result if result is not None else 0.0
 
 #Dataset
-dataset_name = "Mallat"
+dataset_name = "Adiac"
 
 #Caricamento del training set fornito dal dataset AEON
 x_raw, y_raw = load_classification(name=dataset_name, split="train")
@@ -531,4 +531,5 @@ df_results_multi = df_results_multi[column_order]
 df_results_multi.columns = pd.MultiIndex.from_tuples(df_results_multi.columns) #per  una tabella con intestazioni su due righe (livello1 sopra, livello2 sotto).
 
 print(f"\nTabella finale: {dataset_name}\n")
+
 print(df_results_multi.to_string(index=False))
