@@ -29,7 +29,7 @@ def safe_stop(tracker):
     return result if result is not None else 0.0
 
 #Dataset
-dataset_name = "Adiac"
+dataset_name = "Epilepsy"
 
 #Caricamento del training set fornito dal dataset AEON
 x_raw, y_raw = load_classification(name=dataset_name, split="train")
@@ -350,11 +350,19 @@ def run_ft_model(model_name, model_builder, x_train, y_train, x_test, y_test, n_
         model = model_builder()
         batch_size = model.bs
         early = EarlyStopping(monitor="val_accuracy", mode='max', patience=50, restore_best_weights=True, verbose=0)
-        model.fit(x_train, y_train,
-                epochs=5000, batch_size=batch_size, validation_split=0.05,
-                callbacks=[early], verbose=0)
+        history = model.fit(
+            x_train, y_train,
+            epochs=5000, batch_size=batch_size, validation_split=0.05,
+            callbacks=[early], verbose=0
+        )
+
         t1 = time()
         co2_train = safe_stop(tracker_tr)
+        
+        #per stampare anche l'accuracy del train all'epoca con migliore val_accuracy (== pesi ripristinati), non inclusa nel time e co2
+        best_epoch = int(np.argmax(history.history["val_accuracy"]))
+        acc_tr = float(history.history["accuracy"][best_epoch])
+
 
         #TEST
         tracker_ts = EmissionsTracker(project_name=f"{model_name}_Test_Run{i+1}", save_to_file=False)
@@ -366,6 +374,7 @@ def run_ft_model(model_name, model_builder, x_train, y_train, x_test, y_test, n_
         co2_test = safe_stop(tracker_ts)
 
         results.append({
+            "accuracy_tr": acc_tr,
             "accuracy": acc,
             "tempo_tr": t1 - t0,
             "tempo_ts": t3 - t2,
@@ -417,6 +426,8 @@ def run_rc_model(model_name, model_builder, x_train, y_train, x_test, y_test, n_
         model.fit(x_train, y_train)
         t1 = time()
         co2_train = safe_stop(tracker_tr)
+        acc_tr = model.evaluate(x_train, y_train) #per stampare anche accuracy del training set, non inclusa nel time e co2
+
 
         #TEST
         tracker_ts = EmissionsTracker(project_name=f"{model_name}_Test_Run{i+1}", save_to_file=False)
@@ -427,6 +438,7 @@ def run_rc_model(model_name, model_builder, x_train, y_train, x_test, y_test, n_
         co2_test = safe_stop(tracker_ts)
 
         results.append({
+            "accuracy_tr": acc_tr,
             "accuracy": acc,
             "tempo_tr": t1 - t0,
             "tempo_ts": t3 - t2,
@@ -483,6 +495,7 @@ for model_name, runs in zip(
     [gru_runs, srnn_runs, esn_runs, eusn_runs] #accoppio il modello con i suoi risultati delle run
 ):
     print(f"\n[{model_name}] Risultati delle 3 run:")
+    print("  - Acc. TR   :", [f"{r['accuracy_tr']:.4f}" for r in runs])
     print("  - Accuracy  :", [f"{r['accuracy']:.4f}" for r in runs])
     print("  - Tempo TR  :", [f"{r['tempo_tr']:.4f} s" for r in runs])
     print("  - Tempo TS  :", [f"{r['tempo_ts']:.4f} s" for r in runs])
@@ -507,6 +520,7 @@ def aggregate_results(name, modelsel_time, modelsel_kwh, modelsel_co2, run_resul
         ("CO2", "MS"): f"{modelsel_co2:.4f}",
         ("CO2", "TR"): mean_std([r["co2_tr"] for r in run_results]),
         ("CO2", "TS"): mean_std([r["co2_ts"] for r in run_results]),
+        ("Accuracy", "TR"): mean_std([r["accuracy_tr"] for r in run_results]),
         ("Accuracy", "TS"): mean_std([r["accuracy"] for r in run_results])
     }
 
@@ -525,11 +539,11 @@ column_order = [
     ("Tempo", "MS"), ("Tempo", "TR"), ("Tempo", "TS"),
     ("kWh", "MS"), ("kWh", "TR"), ("kWh", "TS"),
     ("CO2", "MS"), ("CO2", "TR"), ("CO2", "TS"),
+    ("Accuracy", "TR"),
     ("Accuracy", "TS")
 ]
 df_results_multi = df_results_multi[column_order]
 df_results_multi.columns = pd.MultiIndex.from_tuples(df_results_multi.columns) #per  una tabella con intestazioni su due righe (livello1 sopra, livello2 sotto).
 
 print(f"\nTabella finale: {dataset_name}\n")
-
 print(df_results_multi.to_string(index=False))
