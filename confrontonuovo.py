@@ -29,7 +29,7 @@ def safe_stop(tracker):
     return result if result is not None else 0.0
 
 #Dataset
-dataset_name = "Epilepsy"
+dataset_name = "FordB"
 
 #Caricamento del training set fornito dal dataset AEON
 x_raw, y_raw = load_classification(name=dataset_name, split="train")
@@ -495,19 +495,19 @@ for model_name, runs in zip(
     [gru_runs, srnn_runs, esn_runs, eusn_runs] #accoppio il modello con i suoi risultati delle run
 ):
     print(f"\n[{model_name}] Risultati delle 3 run:")
-    print("  - Acc. TR   :", [f"{r['accuracy_tr']:.4f}" for r in runs])
-    print("  - Accuracy  :", [f"{r['accuracy']:.4f}" for r in runs])
-    print("  - Tempo TR  :", [f"{r['tempo_tr']:.4f} s" for r in runs])
-    print("  - Tempo TS  :", [f"{r['tempo_ts']:.4f} s" for r in runs])
-    print("  - kWh TR    :", [f"{r['kwh_tr']:.4f}" for r in runs])
-    print("  - kWh TS    :", [f"{r['kwh_ts']:.4f}" for r in runs])
-    print("  - CO₂ TR    :", [f"{r['co2_tr']:.4f} kg" for r in runs])
-    print("  - CO₂ TS    :", [f"{r['co2_ts']:.4f} kg" for r in runs])
+    print("  - Acc. TR   :", [f"{r['accuracy_tr']:.6f}" for r in runs])
+    print("  - Accuracy  :", [f"{r['accuracy']:.6f}" for r in runs])
+    print("  - Tempo TR  :", [f"{r['tempo_tr']:.6f} s" for r in runs])
+    print("  - Tempo TS  :", [f"{r['tempo_ts']:.6f} s" for r in runs])
+    print("  - kWh TR    :", [f"{r['kwh_tr']:.6f}" for r in runs])
+    print("  - kWh TS    :", [f"{r['kwh_ts']:.6f}" for r in runs])
+    print("  - CO₂ TR    :", [f"{r['co2_tr']:.6f} kg" for r in runs])
+    print("  - CO₂ TS    :", [f"{r['co2_ts']:.6f} kg" for r in runs])
 
 #Calcolo media e std
 def aggregate_results(name, modelsel_time, modelsel_kwh, modelsel_co2, run_results):
     def mean_std(values):
-        return f"{np.mean(values):.4f} ± {np.std(values, ddof=1):.4f}" # ddof=1 deviazione standard campionaria
+        return f"{np.mean(values):.6f} ± {np.std(values, ddof=1):.6f}" # ddof=1 deviazione standard campionaria
 
     return { #le chiavi sono tuple, le voci “MS” sono singole (nessuna deviazione standard: un solo valore); TR/TS sono media ± std sulle 3 run
         ("", "Modello"): name,
