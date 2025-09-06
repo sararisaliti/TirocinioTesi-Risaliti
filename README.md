@@ -1,6 +1,6 @@
 # TirocinioTesi-Risaliti
 
-Dataset utilizzati per il confronto (confrontonuovo.py):
+Dataset utilizzati per il confronto (confronto.py):
 - Adiac
 - ⁠CharacterTrajectories
 - ⁠ECG5000
