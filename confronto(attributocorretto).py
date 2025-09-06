@@ -69,7 +69,7 @@ x_train, scaler_ms = normalize_series_fit(x_train_raw)
 x_val   = normalize_series_apply(x_val_raw, scaler_ms)
 
 #Transposizione per avere (samples, timesteps, features)
-x_train = np.transpose(x_train, (0, 2, 1))   #(samples, timesteps, features)
+x_train = np.transpose(x_train, (0, 2, 1))   #(Ns, Tx, Nx)
 x_val   = np.transpose(x_val,   (0, 2, 1))
 
 #Dimensioni e classi
