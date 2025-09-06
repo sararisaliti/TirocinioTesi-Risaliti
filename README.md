@@ -6,11 +6,11 @@ Dataset utilizzati per il confronto (confrontonuovo.py):
 - ⁠ECG5000
 - ⁠Epilepsy
 - ⁠FordA
+- FordB
 - ⁠HandOutlines
 - ⁠Heartbeat
 - ⁠Libras
 - ⁠Mallat
-- ⁠FordB
 - ⁠MotionSenseHAR
 - ⁠ShapesAll
 - ⁠SpokenArabicDigits
