@@ -53,15 +53,15 @@ x_train_raw, x_val_raw, y_train, y_val = train_test_split(
     x_raw, y_raw, test_size=0.20, random_state=42, stratify=y_raw
 )
 
-def normalize_series_fit(x): #standardizzazione per time step (ogni colonna è un istante temporale)
-    ns, nd, nt = x.shape #numero samples, numero di features, numero di timestep
-    scaler = StandardScaler().fit(x.reshape(-1, nt)) #matrice (ns*nd, nt), StandardScaler calcola media e deviazione standard per ogni colonna (quindi per ogni timestep)
-    x_norm = scaler.transform(x.reshape(-1, nt)).reshape(ns, nd, nt) #applico scale e riporto alla forma originale (ns, nd, nt)
+def normalize_series_fit(x):  #standardizzazione per timestep (ogni colonna è un istante temporale)
+    Ns, Nx, Tx = x.shape  #numero di campioni, numero feature per timestep, numero di timestep
+    scaler = StandardScaler().fit(x.reshape(-1, Tx)) #matrice (Ns*Nx, Tx), StandardScaler calcola media e deviazione standard per ogni colonna (quindi per ogni timestep)
+    x_norm = scaler.transform(x.reshape(-1, Tx)).reshape(Ns, Nx, Tx)  #applico scale e riporto alla forma originale (Ns, Nx, Tx)
     return x_norm, scaler #per riutilizzare lo scaler
 
-def normalize_series_apply(x, scaler): #per usare lo stesso scaler già fittato sul train.
-    ns, nd, nt = x.shape
-    x_norm = scaler.transform(x.reshape(-1, nt)).reshape(ns, nd, nt)
+def normalize_series_apply(x, scaler): #per usare lo stesso scaler già fittato sul train
+    Ns, Nx, Tx = x.shape
+    x_norm = scaler.transform(x.reshape(-1, Tx)).reshape(Ns, Nx, Tx)
     return x_norm
 
 #Fit scaler solo sul train, poi applico al val
@@ -69,7 +69,7 @@ x_train, scaler_ms = normalize_series_fit(x_train_raw)
 x_val   = normalize_series_apply(x_val_raw, scaler_ms)
 
 #Transposizione per avere (samples, timesteps, features)
-x_train = np.transpose(x_train, (0, 2, 1))   # (samples, timesteps, features)
+x_train = np.transpose(x_train, (0, 2, 1))   #(samples, timesteps, features)
 x_val   = np.transpose(x_val,   (0, 2, 1))
 
 #Dimensioni e classi
@@ -137,7 +137,7 @@ tracker_gru = EmissionsTracker(project_name="GRU_model_selection", save_to_file=
 tracker_gru.start()
 start_gru = time()
 
-#Ottimizzazione Bayesana
+#Ottimizzazione Bayesiana
 res_gru = gp_minimize(
     func=gru_objective,
     dimensions=space_ft,
